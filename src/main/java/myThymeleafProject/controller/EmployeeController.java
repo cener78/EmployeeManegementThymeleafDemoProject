@@ -7,33 +7,51 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+
 
 @Controller
 public class EmployeeController {
-    private EmployeeRepository employeeRepository;
+
+    private EmployeeRepository empRepo;
 
     @Autowired
-    public EmployeeController(EmployeeRepository employeeRepository1){
-        employeeRepository=employeeRepository1;
+    public EmployeeController(EmployeeRepository employeeRepository) {
+        empRepo = employeeRepository;
     }
 
-    @GetMapping("/list")
-    public ModelAndView getAllEmployees(){
-        ModelAndView mav=new ModelAndView("list-employee","workers",employeeRepository.findAll());
+    @GetMapping({ "/list" })
+    public ModelAndView getAllEmployees() {
+
+        ModelAndView mav = new ModelAndView("list-employee", "calisanlar", empRepo.findAll());
+
+        return mav;
+
+    }
+
+
+    @GetMapping("/addEmployeeForm") // 4)
+    public ModelAndView addEmployeeForm() {
+        ModelAndView mav = new ModelAndView("add-employee-form", "employee", new Employee());
+
         return mav;
     }
-    @GetMapping("/addEmployeeForm")
-    public ModelAndView addEmployee(){
-        ModelAndView mav=new ModelAndView("add-employee-form","employee",new Employee());
 
-        return  mav;
+    @PostMapping("/saveEmployee") //
+    public String saveEmployee(@ModelAttribute Employee employee) {
+        empRepo.save(employee);
 
-    }
-    @PostMapping("/saveEmployee ")
-    public String saveEmployee(@ModelAttribute Employee employee){
-        employeeRepository.save(employee);
         return "redirect:/list";
     }
+
+
+    @GetMapping("/deleteEmployee")
+    public String deleteEmployee(@RequestParam Long employeeId) {
+        empRepo.deleteById(employeeId);
+
+        return "redirect:/list";
+    }
+
 }
